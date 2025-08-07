@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    /* Configurações Básicas */
+    "target": "es2020",                      // Compila para uma versão moderna do JavaScript.
+    "module": "CommonJS",                     // Usa o sistema de módulos padrão do Node.js.
+    "lib": ["ES2020"],                         // Bibliotecas padrão do JS a serem incluídas.
+    "skipLibCheck": true,                     // Pula a verificação de tipos em arquivos de declaração (.d.ts), agilizando a compilação.
+
+    /* Estrutura do Projeto */
+    "outDir": "./dist",                       // Onde os arquivos .js compilados serão colocados.
+    "rootDir": "./src",                       // Onde estão nossos arquivos .ts de origem.
+
+    /* Checagem de Tipos Estrita */
+    "strict": true,                           // Habilita todas as opções de checagem de tipos estritas. Essencial para segurança.
+    "noImplicitAny": true,                    // Exige que todas as variáveis tenham um tipo explícito ou inferido.
+
+    /* Interoperabilidade de Módulos */
+    "esModuleInterop": true,                  // Permite compatibilidade entre módulos CommonJS e ES Modules.
+    "resolveJsonModule": true,                // Permite importar arquivos .json diretamente.
+
+    /* Avançado */
+    "forceConsistentCasingInFileNames": true  // Garante que os nomes de arquivos sejam consistentes em termos de maiúsculas/minúsculas.
+  },
+  "include": ["src/**/*"],                      // Quais arquivos o compilador deve incluir.
+  "exclude": ["node_modules", "dist"]         // Quais pastas devem ser ignoradas.
+}

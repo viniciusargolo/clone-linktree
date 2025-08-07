@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int     @id @default(autoincrement())
+  email     String  @unique
+  name      String
+  bio       String? @db.Text
+  username  String  @unique
+  password  String
+  avatarUrl String?
+
+  plan Plan @default(FREE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  links      Link[]
+  appearance Appearance? // Um usuário tem uma configuração de aparência (relação 1-para-1)
+}
+
+model Link {
+  id        Int      @id @default(autoincrement())
+  title     String
+  url       String
+  clicks    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  owner   User @relation(fields: [ownerId], references: [id])
+  ownerId Int
+}
+
+model Appearance {
+  id    Int    @id @default(autoincrement())
+  theme String @default("default")
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @unique // @unique garante a relação 1-para-1
+}
+
+enum Plan {
+  FREE
+  PREMIUM
+}
