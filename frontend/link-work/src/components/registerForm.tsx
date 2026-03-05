@@ -101,7 +101,7 @@ export default function RegisterForm() {
             </form>
             <div className="flex flex-col gap-2 items-center text-zinc-400">
                 <span className="text-center text-zinc-400 text-xs">Ao se cadastrar, automaticamente, você está aceitando e concordando com os nossos <Link className="text-blue-600 underline font-medium" href={"/terms-of-use"}>termos de uso</Link>.</span>
-                <span className="text-sm">&copy; All rights reserved. <strong>Linkfy&reg;</strong>, 2025</span>
+                <span className="text-sm">&copy; All rights reserved. <strong>Anchorfy&reg;</strong>, 2025</span>
             </div>
         </div>
     )

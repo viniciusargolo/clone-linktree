@@ -382,7 +382,7 @@ export default function Dashboard() {
                     </div>
                 }
                 {section === "account" && 
-                    <div className="flex flex-col gap-5 items-start min-w-full">
+                    <div className="flex flex-col gap-5 items-start min-w-full mb-10">
                         <div>
                             <h2 className="text-xl font-bold">Minha conta</h2>
                             <span className="text-xs text-zinc-600">Alterar dados</span>
