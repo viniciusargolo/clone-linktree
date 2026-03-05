@@ -1,17 +1,17 @@
-import { PrismaClient, type User } from "../generated/prisma";
+import { type User } from "../generated/prisma";
+
+import { prisma } from "../lib/prisma"
 
 interface Theme {
-    id: number;
+    id: string;
     theme: string;
     user: User;
     userId: number;
 }
 
-const prisma = new PrismaClient()
-
 class AppearanceService {
 
-    async getTheme(userId: number) {
+    async getTheme(userId: string) {
         const userTheme = await prisma.appearance.findUnique({
             where: { userId },
             select: {
@@ -23,7 +23,7 @@ class AppearanceService {
         return userTheme
     }
 
-    async setTheme(setTheme: Theme, userIdFromToken: number) {
+    async setTheme(setTheme: Theme, userIdFromToken: string) {
 
         if(!setTheme) {
             throw new Error("Você precisa escolher um tema.")
@@ -47,7 +47,7 @@ class AppearanceService {
         return definedTheme
     }
 
-    async updateTheme(theme: string, userId: number){
+    async updateTheme(theme: string, userId: string){
 
         if(!theme) {
             throw new Error("Você precisa passar o tema.")

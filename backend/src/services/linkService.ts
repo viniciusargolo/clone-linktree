@@ -1,7 +1,5 @@
-import { PrismaClient } from "../generated/prisma"
+import { prisma } from "../lib/prisma"
 import type { CreateLinkData } from "../utils/userTypes"
-
-const prisma = new PrismaClient()
 
 
 class LinkService {
@@ -10,7 +8,7 @@ class LinkService {
        return await prisma.link.findMany()
     }
 
-    async create(linkData: CreateLinkData, ownerId: number) {
+    async create(linkData: CreateLinkData, ownerId: string) {
         const { title, url } = linkData
 
         if (!title || !url) {
@@ -28,7 +26,7 @@ class LinkService {
         return link
     }
 
-    async update(linkId: number, userId: number, linkData: { title?: string; url?: string }) {
+    async update(linkId: string, userId: string, linkData: { title?: string; url?: string }) {
         const linkExists = await prisma.link.findUnique({ where: { id: linkId } })
         if (!linkExists) {
             throw new Error("Link não encontrado.")
@@ -55,7 +53,7 @@ class LinkService {
         return updatedLink
     }
 
-    async delete(linkId: number, userId: number) {
+    async delete(linkId: string, userId: string) {
         const linkExists = await prisma.link.findUnique({ where: { id: linkId, ownerId: userId } })
         if (!linkExists) {
             throw new Error("Link não encontrado.")

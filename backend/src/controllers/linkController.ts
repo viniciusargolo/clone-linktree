@@ -17,7 +17,7 @@ class LinkController {
             if(!userIdFromToken) {
                 throw new Error("Usuário não autenticado.")
             }
-            const link = await LinkService.create(req.body, userIdFromToken)
+            const link = await LinkService.create(req.body, String(userIdFromToken))
             return res.status(201).json({ message: "Link criado com sucesso.", link })
         } catch (error) {
             next(error)
@@ -27,13 +27,12 @@ class LinkController {
     async update(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params
-            const linkIdInt = parseInt(id, 10)
             const userIdFromToken = req.user?.userId
             if(!userIdFromToken) {
                 throw new Error("Usuário não autenticado.")
             }
             const linkData = req.body
-            const updateLink = await LinkService.update(linkIdInt, userIdFromToken, linkData)
+            const updateLink = await LinkService.update(String(id), String(userIdFromToken), linkData)
             return res.status(201).json({ message: "Alteração no link feito com sucesso.", updateLink })
         } catch (error) {
             next(error)
@@ -47,8 +46,7 @@ class LinkController {
             if(!userIdFromToken) {
                 throw new Error("Usuário não autenticado.")
             }
-            const linkId = parseInt(id, 10)
-            const deletedLink = await LinkService.delete(linkId, userIdFromToken)
+            const deletedLink = await LinkService.delete(String(id), String(userIdFromToken))
             return res.status(200).json({ message: "Link excluído com sucesso.", deletedLink })
         } catch (error) {
             next(error)

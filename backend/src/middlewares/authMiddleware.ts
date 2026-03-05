@@ -27,7 +27,7 @@ export const authMiddleware = (req: Request, res: Response, next:NextFunction) =
         if (typeof decodedPayload === 'object' && decodedPayload !== null && 'userId' in decodedPayload) {
             
             req.user = {
-                userId: Number(decodedPayload.userId),
+                userId: decodedPayload.userId,
                 plan: String(decodedPayload.plan)
             };
 

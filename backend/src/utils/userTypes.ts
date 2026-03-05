@@ -1,5 +1,5 @@
 export type userData = {
-    id: number
+    id: string
     name: string
     bio?: string | null
     email:  string
@@ -20,12 +20,12 @@ export type userCredentials = {
 }
 
 export type LinkData = {
-    id: number             
+    id: string             
     title: string
     url: string       
     clicks?: number        
     createdAt: string
-    ownerId: number
+    ownerId: string
 }
 
 export interface CreateLinkData {

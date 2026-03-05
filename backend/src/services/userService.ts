@@ -1,11 +1,10 @@
-import { PrismaClient } from "../generated/prisma"
+import { prisma } from "../lib/prisma"
 import type { userData } from "../utils/userTypes"
 import bcrypt from "bcrypt"
-const prisma = new PrismaClient()
 
 class UserService {
 
-    async getProfile(userId: number) {
+    async getProfile(userId: string) {
         const user = await prisma.user.findUnique({ 
             where: { id: userId },
             select: {
@@ -74,7 +73,7 @@ class UserService {
         return user
     }
 
-    async update(userId: number, updateData: { name?: string; bio?: string; avatarUrl?: string }) {
+    async update(userId: string, updateData: { name?: string; bio?: string; avatarUrl?: string }) {
         const userExists = await prisma.user.findUnique({ where: { id: userId } })
         if (!userExists) {
             throw new Error("Usuário não encontrado.")
@@ -109,7 +108,7 @@ class UserService {
         return updatedUser
     }
 
-    async changePassword(userId: number, currentPassword: string, newPassword: string) {
+    async changePassword(userId: string, currentPassword: string, newPassword: string) {
         const user = await prisma.user.findUnique({
             where: { id: userId }
         })
@@ -135,7 +134,7 @@ class UserService {
         })
     }
 
-    async delete(userId: number) {
+    async delete(userId: string) {
         const userExists = await prisma.user.findUnique({ where: { id: userId } })
         if (!userExists) {
             throw new Error("Usuário não encontrado.")
