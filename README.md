@@ -11,11 +11,25 @@ Este projeto é um clone funcional da ideia por trás do Linktree, desenvolvido 
 
 ## Funcionalidades
 
-- Interface responsiva (Mobile First).
 - Listagem dinâmica de links cadastrados no banco de dados.
 - Painel administrativo para criar, editar e excluir links (CRUD).
 - Autenticação de usuários.
-- Estilização moderna utilizando utilitários do Tailwind CSS.
+- Estilização moderna utilizando classes utilitárias do Tailwind CSS.
+
+## Próximas atualizações
+
+**Perfil**
+- Inserção de imagem do perfil []
+- Atualização de email []
+
+ **Links**
+- Atualização e exclusão de links []
+- Ordenamento manual dos links []
+
+**Dashboard**
+- Correção na troca de tema []
+- Inserção de feature para escolher a cor do tema e fonte []
+- Novas atualizações [em breve]
 
 ## Tecnologias Utilizadas
 
