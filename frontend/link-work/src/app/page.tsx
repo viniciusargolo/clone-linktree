@@ -11,7 +11,7 @@ export default function Home() {
         <h1 className="text-7xl font-bold w-full text-center ">Permita que os seus fãs te encontre...</h1>
       </div>
       <div className="flex flex-col gap-20 items-center">
-        <Link href="/register" className="w-full flex group justify-center items-center bg-pink-500 hover:bg-pink-400 p-10 mt-20 border-2 border-black">
+        <Link href="/register" className="w-full flex group justify-center items-center bg-pink-500 hover:bg-pink-400 p-10 mt-20">
           <span className="font-medium text-center text-7xl uppercase">Quero me conectar</span>
           <IconArrowUpRight className="opacity-0 group-hover:opacity-100 group-hover:translate-x-5 transition-all duration-300" size={70}/>
         </Link>

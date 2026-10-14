@@ -1,12 +1,8 @@
 import "dotenv/config";
-import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-// 1. Instancie a Pool do driver 'pg' nativo
-const connectionString = `${process.env.DATABASE_URL}`;
-
-// 2. Crie o adapter (o "braço" de comunicação)
-const adapter = new PrismaPg({ connectionString });
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 
 const prisma = new PrismaClient({ 
   adapter,
@@ -14,3 +10,5 @@ const prisma = new PrismaClient({
 });
 
 export { prisma };
+
+// 3303587d-aa35-43a5-8df1-95b34b0ec911 lula

@@ -80,12 +80,12 @@ export default function LoginForm() {
                 </div>
             </div>
             <>
-                {success && (<div className="flex items-center gap-2 justify-start bg-green-700/10 border-b-2 border-green-700 p-3 w-full">
+                {success && (<div className="flex items-center gap-2 justify-start bg-green-700/10 border-b-1 border-green-700 p-3 w-full">
                     <IconCheck size={22} stroke={2} className="text-green-700"/>
                     <p className="text-green-700 text-md font-medium">Login efetuado com sucesso.</p>
                 </div>)
                 }
-                {error && <div className="flex items-center gap-2 justify-start bg-red-700/10 border-b-2 border-red-700 p-3 w-full">
+                {error && <div className="flex items-center gap-2 justify-start bg-red-700/10 border-b-1 border-red-700 p-3 w-full">
                 <IconAlertCircle size={22} stroke={2} className="text-red-700"/>
                 <p className="text-red-700 text-md font-medium">{error}</p>
                 </div>}
@@ -94,14 +94,14 @@ export default function LoginForm() {
                 <div className="w-full">
                     <label htmlFor="emailOrUsername" className="font-medium text-xl text-pink-500">E-mail ou usuário</label>
                     <input value={emailOrUsername} onChange={(e) => setEmailOrUsername(e.target.value)} id="emailOrUsername" name="emailOrUsername" type="text" placeholder="Ex.: fulanodetal@email.com ou seu usuário" className="
-                    border-b-2 border-zinc-600 p-5 w-full focus:border-pink-500 outline-0 text-zinc-400
+                    border-b-1 border-zinc-600 p-5 w-full focus:border-pink-500 outline-0 text-zinc-400
                     text-2xl
                     " required/>
                 </div>
                 <div className="w-full"> 
                     <label htmlFor="password" className="font-medium text-xl text-pink-500">Senha</label>
                     <input value={password} onChange={(e) => setPassword(e.target.value)} id="password" name="password" type="password" placeholder="Sua senha..." className="
-                    border-b-2 border-zinc-600 p-5 w-full focus:border-pink-500 outline-0 text-zinc-400
+                    border-b-1 border-zinc-600 p-5 w-full focus:border-pink-500 outline-0 text-zinc-400
                     text-2xl
                     " required/>
                 </div>

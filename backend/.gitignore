@@ -29,3 +29,4 @@ Thumbs.db
 # Arquivos de Teste (opcional, dependendo da estratégia)
 coverage/
 /src/generated/prisma
+dev.db

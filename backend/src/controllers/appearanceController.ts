@@ -10,7 +10,7 @@ class AppearanceController {
             if(!userIdFromToken) {
                 throw new Error("Você não está autenticado")
             }
-            const theme = await AppearanceService.getTheme(String(userIdFromToken))
+            const theme = await AppearanceService.getTheme(userIdFromToken)
             return res.status(200).json(theme)
         } catch (error) {
             next(error)
@@ -35,14 +35,12 @@ class AppearanceController {
     async updateTheme(req: Request, res: Response, next: NextFunction) {
         try {
             const { theme } = req.body
-            // const { id } = req.params
-            // const themeId = parseInt(id, 10)
             const userIdFromToken = req.user?.userId
             if(!userIdFromToken) {
                 throw new Error("Usuário não autenticado.")
             }
 
-            const updatedAppearance = await AppearanceService.updateTheme(theme, String(userIdFromToken))
+            const updatedAppearance = await AppearanceService.updateTheme(theme, userIdFromToken)
             return res.status(200).json({ message: "Tema alterado com sucesso.", updatedAppearance })
         } catch (error) {
             next(error)

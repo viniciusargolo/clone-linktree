@@ -3,7 +3,7 @@ import { type User } from "../generated/prisma";
 import { prisma } from "../lib/prisma"
 
 interface Theme {
-    id: string;
+    id: number;
     theme: string;
     user: User;
     userId: number;
@@ -50,22 +50,17 @@ class AppearanceService {
     async updateTheme(theme: string, userId: string){
 
         if(!theme) {
-            throw new Error("Você precisa passar o tema.")
+            throw new Error("Erro. Escolha o tema novamente.")
         }
 
-        const updatedTheme = await prisma.appearance.update({
-            where: {
-                userId
-            },
-            data: {
-                theme
-            },
-            select: {
-                id: true,
-                theme: true,
-                userId: true
-            }
+        const updatedTheme = await prisma.appearance.upsert({
+            where: { userId },
+            update: { theme },
+            create: { theme, userId },
+            select: { id: true, theme: true, userId: true }
         })
+
+        if(!updatedTheme) throw new Error("Não foi possível alterar o tema.")
 
         return updatedTheme
     }

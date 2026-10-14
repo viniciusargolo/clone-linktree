@@ -1,21 +1,31 @@
-/*
-  Warnings:
+-- CreateEnum
+CREATE TYPE "Plan" AS ENUM ('FREE', 'PREMIUM');
 
-  - Added the required column `name` to the `User` table without a default value. This is not possible if the table is not empty.
+-- CreateTable
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "bio" TEXT,
+    "username" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "avatarUrl" TEXT,
+    "plan" "Plan" NOT NULL DEFAULT 'FREE',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
-*/
--- AlterTable
-ALTER TABLE "User" ADD COLUMN     "bio" TEXT,
-ADD COLUMN     "name" TEXT NOT NULL;
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "Link" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "url" TEXT NOT NULL,
     "clicks" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "ownerId" INTEGER NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "ownerId" TEXT NOT NULL,
 
     CONSTRAINT "Link_pkey" PRIMARY KEY ("id")
 );
@@ -23,12 +33,17 @@ CREATE TABLE "Link" (
 -- CreateTable
 CREATE TABLE "Appearance" (
     "id" SERIAL NOT NULL,
-    "backgroundColor" TEXT NOT NULL DEFAULT '#ffffff',
-    "fontColor" TEXT NOT NULL DEFAULT '#000000',
-    "userId" INTEGER NOT NULL,
+    "theme" TEXT NOT NULL DEFAULT 'default',
+    "userId" TEXT NOT NULL,
 
     CONSTRAINT "Appearance_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Appearance_userId_key" ON "Appearance"("userId");

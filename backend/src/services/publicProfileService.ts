@@ -4,7 +4,7 @@ class PublicProfileService {
 
     async getProfileByUsername(username: string) {
         const user = await prisma.user.findUnique({
-            where: { username },
+            where: { username: username },
             include: {
                 links: {
                     orderBy: { createdAt: "asc" }
@@ -22,7 +22,7 @@ class PublicProfileService {
             username: user.username,
             bio: user.bio,
             avatar: user.avatarUrl,
-            theme: user.appearance,
+            theme: user.appearance?.theme,
             links: user.links.map(link => ({
                 linkId: link.id,
                 title: link.title,

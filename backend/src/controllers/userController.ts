@@ -6,7 +6,7 @@ class UserController {
 
     async getProfile(req: Request, res: Response, next: NextFunction) {
         try {
-            const userId = req.user?.userId
+            const userId = String(req.user?.userId)
             if (!userId) {
                 throw new Error("Usuário não autenticado.")
             }
@@ -28,7 +28,7 @@ class UserController {
 
     async update(req: Request, res: Response, next: NextFunction) {
         try {
-            const userIdFromToken  = req.user?.userId
+            const userIdFromToken  = String(req.user?.userId)
 
             if(!userIdFromToken) {
                 throw new Error("Usuário não autenticado.")
@@ -48,7 +48,7 @@ class UserController {
 
     async updatePassword(req: Request, res: Response, next: NextFunction) {
          try {
-            const userIdFromToken = req.user?.userId
+            const userIdFromToken = String(req.user?.userId)
 
             if(!userIdFromToken) {
                 throw new Error("Usuário não autenticado.")
@@ -65,9 +65,41 @@ class UserController {
          }
     }
 
+    async updateAvatar(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userIdFromToken = String(req.user?.userId)
+            if(!userIdFromToken) {
+                throw new Error("Usuário não autenticado.")
+            }
+
+            const { avatarUrl } = req.body
+            const updatedUser = await userService.update(userIdFromToken, { avatarUrl })
+            return res.status(200).json({ message: "Avatar atualizado com sucesso.", updatedUser })
+        } catch (error) {
+            next(error)
+        }
+
+    }
+
+    async updatePlan(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userIdFromToken = String(req.user?.userId)
+            if(!userIdFromToken) {
+                throw new Error("Usuário não autenticado.")
+            }
+            const plan = req.body.plan
+            const updatedUser = await userService.update(userIdFromToken, plan)
+            return res.status(200).json({ message: "Plano atualizado com sucesso.", updatedUser })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+
+
     async delete(req: Request, res: Response, next: NextFunction) {
         try {
-            const userIdFromToken = req.user?.userId
+            const userIdFromToken = String(req.user?.userId)
 
             if(!userIdFromToken) {
                 throw new Error("Usuário não autenticado.")

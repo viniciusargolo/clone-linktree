@@ -1,31 +1,32 @@
 'use client'
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import { IconAlertCircle, IconCancel, IconCheck, IconEye, IconGraph, IconHourglass, IconLinkPlus, IconLoader3, IconPaint, IconUserCircle } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { formatLongDate } from "@/utils/formatDatetime";
+import LinkRow, { LinkData } from "./_components/LinkRow";
 
 
 interface Links {
-  id: number;
-  title: string;
-  url: string;
-  clicks: number;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  title: string
+  url: string
+  clicks: number
+  createdAt: string
+  updatedAt: string
 }
 
 interface UserProfile {
-  id: number;
-  name: string;
-  username: string;
-  email: string;
-  bio?: string;
-  avatarUrl?: string;
-  links?: Links[];
-  plan?: string;
+  id: number
+  name: string
+  username: string
+  email: string
+  bio?: string
+  avatarUrl?: string
+  links?: LinkData[]
+  plan?: string
 }
 
 export default function Dashboard() {
@@ -37,8 +38,8 @@ export default function Dashboard() {
     const [success, setSuccess] = useState<string | null>(null)
     const router = useRouter()
 
+    // Criar link
     const [modalLink, setModalLink] = useState<boolean>(false)
-
     const [titleLink, setTitleLink] = useState<string>("")
     const [urlLink, setUrlLink] = useState<string>("")
 
@@ -50,9 +51,22 @@ export default function Dashboard() {
 
     const [theme, setTheme] = useState<string>("")
     const [themeSelected, setThemeSelected] = useState<"pink" | "blue" | "green">("pink")
+
+    function handleError(message: string) {
+        setError(message)
+        setTimeout(() => {
+            setError(null)
+        }, 5000)
+    }
+
+    function handleSuccess(message: string) {
+        setSuccess(message)
+        setTimeout(() => {
+            setSuccess(null)
+        }, 5000)
+    }
    
-    useEffect(() => {
-        const fetchUserData = async () => {
+   const fetchUserData = useCallback( async () => {
             const token = localStorage.getItem("authToken")
             
             if(!token) {
@@ -91,11 +105,12 @@ export default function Dashboard() {
             } finally {
                 setIsLoading(false)
             }
-        }
+        }, [router, setError, setIsLoading])
+
+        
+    useEffect(() => {
         fetchUserData()
-
-
-    }, [router])
+    }, [fetchUserData])
     
     function handleLogout() {
             localStorage.removeItem("userData")
@@ -255,8 +270,8 @@ export default function Dashboard() {
             }
 
             const data = await response.json()
-            setTheme(data)
-            setSuccess(data)
+            setTheme(data.updatedAppearance.theme)
+            setSuccess(data.message)
             window.location.reload()
             
         } catch (error) {
@@ -268,6 +283,11 @@ export default function Dashboard() {
             }
         }
     }
+
+    
+    // async function deleteLink(e: React.FormEvent){
+
+    // }
 
     
     if (isLoading) {
@@ -293,10 +313,10 @@ export default function Dashboard() {
                 <div className="flex items-center gap-4">
                     <span className="font-medium text-xs">{user.name}</span>
                     <div className="w-12.5 h-12.5 relative">
-                        <Image className='rounded-full object-conver border-2 border-black' title={user.avatarUrl ? `Foto de ${user.name}` : "Usuário sem foto"} src={user.avatarUrl ? user.avatarUrl : '/user.jpg'} width={50} height={50} alt={`Avatar de ${user.name}`} />
-                        <span className="absolute top-11 left-1/9 bg-pink-400 border-2 border-black px-1 text-xs font-medium">{user.plan}</span>
+                        <Image className='rounded-full object-conver' title={user.avatarUrl ? `Foto de ${user.name}` : "Usuário sem foto"} src={user.avatarUrl ? user.avatarUrl : '/user.jpg'} width={50} height={50} alt={`Avatar de ${user.name}`} />
+                        <span className="absolute top-11 left-1/9 bg-pink-400 px-1 text-xs font-medium">{user.plan}</span>
                     </div>
-                    <button className="bg-pink-400 px-3 py-1 cursor-pointer border-2 border-black hover:bg-pink-500 font-medium" onClick={handleLogout}>Sair</button>
+                    <button className="bg-pink-400 px-3 py-1 cursor-pointer hover:bg-pink-500 font-medium" onClick={handleLogout}>Sair</button>
                 </div>
             </header>
             <div className="grid grid-cols-[250px_1fr] max-w-7xl mx-auto">
@@ -368,7 +388,7 @@ export default function Dashboard() {
                                                     <tr key={link.id}>
                                                         <td className="p-2 text-sm font-medium">{link.title}</td>
                                                         <td className="p-2 text-sm text-center">
-                                                            <Link href={link.url} className="hover:underline">{link.url}</Link>
+                                                            <Link href={link.url} target="_blank" className="hover:underline">{link.url}</Link>
                                                         </td>
                                                         <td className="p-2 text-sm text-center">{formatLongDate(link.createdAt)}</td>
                                                         <td className="p-2 text-sm text-center">{formatLongDate(link.updatedAt)}</td>
@@ -390,12 +410,12 @@ export default function Dashboard() {
                         <div className="min-w-full">
                         <form onSubmit={handleUpdateProfile} className="flex flex-col min-w-full gap-5">
                             <>
-                            {success && (<div className="flex items-center gap-2 justify-start bg-green-700/10 border-b-2 border-green-700 p-3 w-full">
+                            {success && (<div className="flex items-center gap-2 justify-start bg-green-700/10 border-b-1 border-green-700 p-3 w-full">
                                 <IconCheck size={22} stroke={2} className="text-green-700"/>
                                 <p className="text-green-700 text-md font-medium">Senha alterada com sucesso.</p>
                             </div>)
                             }
-                            {error && (<div className="flex items-center gap-2 justify-start bg-red-700/10 border-b-2 border-red-700 p-3 w-full">
+                            {error && (<div className="flex items-center gap-2 justify-start bg-red-700/10 border-b-1 border-red-700 p-3 w-full">
                                 <IconAlertCircle size={22} stroke={2} className="text-red-700"/>
                                 <p className="text-red-700 text-md font-medium">Lembre-se de passar a senha atual corretamente para verificação. Não é permitido salvar campos vazios.</p>
                             </div>)
@@ -408,25 +428,26 @@ export default function Dashboard() {
                                 </div>
                                 <div>
                                     <label htmlFor="name">Nome</label>
-                                    <input value={name} onChange={(e) => setName(e.target.value)} name="name" id="name" type="text" className="w-full p-3 bg-black/10 outline-none border-b-2 border-pink-300 focus:border-pink-500 placeholder:text-zinc-500 text-zinc-500" placeholder={`Nome atual: ${user.name}`} />
+                                    <input value={name} onChange={(e) => setName(e.target.value)} name="name" id="name" type="text" className="w-full p-3 bg-black/10 outline-none border-b-1 border-pink-300 focus:border-pink-500 placeholder:text-zinc-500 text-zinc-500" placeholder={`Novo nome...`} />
                                 </div>
                                 <div>
                                     <label htmlFor="bio">Bio</label>
-                                    <input value={bio} onChange={(e) => setBio(e.target.value)} maxLength={60} name="bio" type="text" className="w-full p-3 bg-black/10 outline-none border-b-2 border-pink-300 focus:border-pink-500 placeholder:text-zinc-500 text-zinc-500" placeholder={`Bio atual: ${user.bio}`} />
+                                    <input value={bio} onChange={(e) => setBio(e.target.value)} maxLength={60} name="bio" type="text" className="w-full p-3 bg-black/10 outline-none border-b-1 border-pink-300 focus:border-pink-500 placeholder:text-zinc-500 text-zinc-500" placeholder={`O que você falar sobre você?`} />
+                                    <span className="text-xs text-black/50">{user.bio ? `Bio: ${user.bio}` : "Você ainda não definiu nenhuma bio."}</span>
                                 </div>
-                                <button type="submit" className="bg-pink-400 hover:bg-pink-500 cursor-pointer text-black p-3 border-2 border-black">Salvar</button>
+                                <button type="submit" className="bg-pink-400 hover:bg-pink-500 cursor-pointer text-black p-3 ">Salvar</button>
                             </div>
                         </form>
                         <div className="min-w-full flex flex-col gap-5 mt-10">
                             <div className="flex flex-col">
                                 <h2 className="text-xl font-medium mb-2">Alterar e-mail</h2>
-                                <span className="bg-black/10 dark:bg-white/10 px-1 py-0.5 text-sm"><strong>Nota:</strong> O novo e-mail deverá ser verificado antes da mudança ocorrer.</span>
+                                {/* <span className="bg-black/10 dark:bg-white/10 px-1 py-0.5 text-sm"><strong>Nota:</strong> O novo e-mail deverá ser verificado antes da mudança ocorrer.</span> */}
                             </div>
                             <div className="w-full">
                                 <label htmlFor="email">E-mail</label>
-                                <input name="email" id="email" type="email" className="w-full p-3 bg-black/10 outline-none border-b-2 border-pink-300 focus:border-pink-500 placeholder:text-zinc-500 text-zinc-500" placeholder={user.email} />
+                                <input name="email" id="email" type="email" className="w-full p-3 bg-black/10 outline-none border-b-1 border-pink-300 focus:border-pink-500 placeholder:text-zinc-500 text-zinc-500" placeholder={user.email} />
                             </div>
-                            <button className="bg-pink-400 w-full hover:bg-pink-500 cursor-pointer text-black p-3 border-2 border-black">Alterar e-mail</button>
+                            <button className="bg-pink-400 w-full hover:bg-pink-500 cursor-pointer text-black p-3 ">Alterar e-mail</button>
                         </div>
                         <div className="flex flex-col gap-5 min-w-full mt-10">
                             <div className="flex flex-col">
@@ -437,13 +458,13 @@ export default function Dashboard() {
                                 <div className="flex items-end gap-5 min-w-full">
                                     <div className="w-full">
                                         <label htmlFor="currentPassword">Senha atual</label>
-                                        <input value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} name="currentPassword" id="currentPassword" type="password" className="w-full p-3 bg-black/10 outline-none border-b-2 border-pink-300 focus:border-pink-500 placeholder:text-zinc-500 text-zinc-500" placeholder="Insira sua senha atual..." />
+                                        <input value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} name="currentPassword" id="currentPassword" type="password" className="w-full p-3 bg-black/10 outline-none border-b-1 border-pink-300 focus:border-pink-500 placeholder:text-zinc-500 text-zinc-500" placeholder="Insira sua senha atual..." />
                                     </div>
                                     <div className="w-full">
                                         <label htmlFor="newPassword">Nova senha</label>
-                                        <input value={newPassword} onChange={(e) => setNewPassoword(e.target.value)} name="newPassword" id="newPassword" type="password" className="w-full p-3 bg-black/10 outline-none border-b-2 border-pink-300 focus:border-pink-500 placeholder:text-zinc-500 text-zinc-500" placeholder="Insira sua nova senha..." />
+                                        <input value={newPassword} onChange={(e) => setNewPassoword(e.target.value)} name="newPassword" id="newPassword" type="password" className="w-full p-3 bg-black/10 outline-none border-b-1 border-pink-300 focus:border-pink-500 placeholder:text-zinc-500 text-zinc-500" placeholder="Insira sua nova senha..." />
                                     </div>
-                                    <button type="submit" className="bg-pink-400 hover:bg-pink-500 cursor-pointer text-black p-3 border-2 border-black">Salvar</button>
+                                    <button type="submit" className="bg-pink-400 hover:bg-pink-500 cursor-pointer text-black p-3 ">Salvar</button>
                                 </div>
                             </form>
                         </div>
@@ -457,12 +478,12 @@ export default function Dashboard() {
                             <span className="text-xs text-zinc-600">Mude o tema do seu perfil. Deixe do seu jeito...</span>
                         </div>
                         <>
-                            {success && (<div className="flex items-center gap-2 justify-start bg-green-700/10 border-b-2 border-green-700 p-3 w-full">
+                            {success && (<div className="flex items-center gap-2 justify-start bg-green-700/10 border-b-1 border-green-700 p-3 w-full">
                                 <IconCheck size={22} stroke={2} className="text-green-700"/>
                                 <p className="text-green-700 text-md font-medium">Tema alterado com sucesso.</p>
                             </div>)
                             }
-                            {error && (<div className="flex items-center gap-2 justify-start bg-red-700/10 border-b-2 border-red-700 p-3 w-full">
+                            {error && (<div className="flex items-center gap-2 justify-start bg-red-700/10 border-b-1 border-red-700 p-3 w-full">
                                 <IconAlertCircle size={22} stroke={2} className="text-red-700"/>
                                 <p className="text-red-700 text-md font-medium">Ocorreu um erro ao tentar atualizar o tema.</p>
                             </div>)
@@ -487,18 +508,18 @@ export default function Dashboard() {
                                     <input  onClick={() => setThemeSelected("green")}  type="radio"  value="green" id="green" name="theme" />
                                     <label htmlFor="green">Verde</label>
                                 </div>
-                                <button type="submit" className="bg-pink-400 hover:bg-pink-500 cursor-pointer text-black p-3 border-2 border-black">Salvar</button>
+                                <button type="submit" className="bg-pink-400 hover:bg-pink-500 cursor-pointer text-black p-3 ">Salvar</button>
                             </form>
                             <div>
                             <h2 className="text-xl font-medium py-1">Preview</h2>
                             {themeSelected === "blue" && (
-                                <Image src="/blue.jpg" width={600} height={100} className="object-contain border-2 border-black" alt="Cor azul" />
+                                <Image src="/blue.jpg" width={600} height={100} className="object-contain " alt="Cor azul" />
                             )}
                             {themeSelected === "pink" && (
-                                <Image src="/pink.jpg" width={600} height={100} className="object-contain border-2 border-black" alt="Cor azul" />
+                                <Image src="/pink.jpg" width={600} height={100} className="object-contain " alt="Cor azul" />
                             )}
                             {themeSelected === "green" && (
-                                <Image src="/green.jpg" width={600} height={100} className="object-contain border-2 border-black" alt="Cor azul" />
+                                <Image src="/green.jpg" width={600} height={100} className="object-contain " alt="Cor azul" />
                             )}
                             </div>
                         </div>
@@ -507,12 +528,12 @@ export default function Dashboard() {
                 {section === "links" && 
                 <div className="flex flex-col gap-2 items-start w-full">
                             <>
-                            {success && (<div className="flex items-center gap-2 justify-start bg-green-700/10 border-b-2 border-green-700 p-3 w-full">
+                            {success && (<div className="flex items-center gap-2 justify-start bg-green-700/10 border-b-1 border-green-700 p-3 w-full">
                                 <IconCheck size={22} stroke={2} className="text-green-700"/>
                                 <p className="text-green-700 text-md font-medium">Link criado com sucesso.</p>
                             </div>)
                             }
-                            {error && (<div className="flex items-center gap-2 justify-start bg-red-700/10 border-b-2 border-red-700 p-3 w-full">
+                            {error && (<div className="flex items-center gap-2 justify-start bg-red-700/10 border-b-1 border-red-700 p-3 w-full">
                                 <IconAlertCircle size={22} stroke={2} className="text-red-700"/>
                                 <p className="text-red-700 text-md font-medium">Os campos título e url são obrigatórios.</p>
                             </div>)
@@ -524,7 +545,7 @@ export default function Dashboard() {
                             <span className="text-xs text-zinc-600">Configure os links que irão aparecer para os seus clientes</span>
                         </div>
                         <div>
-                            <button onClick={handleModalLink} className="bg-pink-400 px-3 py-1 cursor-pointer border-2 border-black hover:bg-pink-500 font-medium group flex items-center gap-2">
+                            <button onClick={handleModalLink} className="bg-pink-400 px-3 py-1 cursor-pointer  hover:bg-pink-500 font-medium group flex items-center gap-2">
                                 {modalLink ? (
                                     <><IconCancel size={18} /><span>Cancelar</span></>
                                 ) : (
@@ -537,43 +558,34 @@ export default function Dashboard() {
                     {modalLink &&
                                         
                         <form onSubmit={createNewLink} className="flex gap-2 items-center min-w-full">
-                            <input value={titleLink} onChange={(e) => setTitleLink(e.target.value)} type="text" name="title" id="title" placeholder="Nome do link..." className="w-full p-3 bg-black/10 outline-none border-b-2 border-pink-300 focus:border-pink-500 placeholder:text-zinc-500 text-zinc-500"/>
-                            <input value={urlLink} onChange={(e) => setUrlLink(e.target.value)} type="text" name="url" id="url" placeholder="URL do link..." className="w-full p-3 bg-black/10 outline-none border-b-2 border-pink-300 focus:border-pink-500 placeholder:text-zinc-500 text-zinc-500"/>
-                            <button type="submit" className="bg-pink-400 p-3 cursor-pointer border-2 border-black hover:bg-pink-500 font-medium group text-center w-full">Criar</button>   
+                            <input value={titleLink} onChange={(e) => setTitleLink(e.target.value)} type="text" name="title" id="title" placeholder="Nome do link..." className="w-full p-3 bg-black/10 outline-none border-b-1 border-pink-300 focus:border-pink-500 placeholder:text-zinc-500 text-zinc-500"/>
+                            <input value={urlLink} onChange={(e) => setUrlLink(e.target.value)} type="text" name="url" id="url" placeholder="URL do link..." className="w-full p-3 bg-black/10 outline-none border-b-1 border-pink-300 focus:border-pink-500 placeholder:text-zinc-500 text-zinc-500"/>
+                            <button type="submit" className="bg-pink-400 p-3 cursor-pointer  hover:bg-pink-500 font-medium group text-center w-full">Criar</button>   
                         </form>
 
                                         
                     }    
                     <table className="w-full">
                         <thead>
-                            <tr className="bg-black/20 border-2 border-black">
-                                <td className="p-2 text-sm font-medium text-nowrap text-center">Nome do link</td>
+                            <tr className="bg-black/20 border-b-1">
+                                <td className="w-48 p-2 text-sm font-medium text-nowrap text-center">Título do link</td>
                                 <td className="p-2 text-sm font-medium text-nowrap text-center">URL</td>
-                                <td className="p-2 text-sm font-medium text-nowrap text-center">Data de criação</td>
-                                <td className="p-2 text-sm font-medium text-nowrap text-center">Última atualização</td>
-                                <td className="p-2 text-sm font-medium text-nowrap text-center">Atualizar?</td>
-                                <td className="p-2 text-sm font-medium text-nowrap text-center">Excluir?</td>
+                                <td className="w-32 p-2 text-sm font-medium text-nowrap text-center">Data de criação</td>
+                                <td className="w-32 p-2 text-sm font-medium text-nowrap text-center">Última atualização</td>
+                                <td className="w-32 p-2 text-sm font-medium text-nowrap text-center">Opções</td>
+                                {/* <td className="w-20 p-2 text-sm font-medium text-nowrap text-center">Excluir?</td> */}
                             </tr>
                         </thead>
                         <tbody>
-                        {user.links?.map((link) => (
-                                <tr key={link.id} className="cursor-grab active:cursor-grabbing">
-                                    <td className="p-2 text-sm">
-                                        {link.title}
-                                    </td>
-                                    <td className="p-2 text-sm">
-                                        {link.url}
-                                    </td>
-                                    <td className="p-2 text-sm text-center">{formatLongDate(link.createdAt)}</td>
-                                    <td className="p-2 text-sm text-center">{formatLongDate(link.updatedAt)}</td>
-                                    <td className="p-2 text-sm text-center">
-                                            <button className="bg-blue-500 hover:bg-blue-400 cursor-pointer px-1 border-2 border-black py-0.5">Atualizar</button>
-                                    </td>
-                                    <td className="p-2 text-sm text-center">
-                                        <button className="bg-red-500  hover:bg-red-400 border-2 border-black cursor-pointer font-medium px-1 py-0.5">Excluir</button>
-                                    </td>
-                                </tr>
-                        ))}
+                            {user.links?.map((link) => (
+                                <LinkRow 
+                                    key={link.id}
+                                    link={link}
+                                    onError={handleError}
+                                    onSuccess={handleSuccess}
+                                    onUpdated={fetchUserData}
+                                />
+                            ))}
                         </tbody>
                     </table>                                               
                 </div>

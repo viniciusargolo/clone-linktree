@@ -46,7 +46,7 @@ class AuthService {
     async login(credentials: { emailOrUsername: string; password: string }) {
         const { emailOrUsername, password } = credentials
 
-
+        
         if (!credentials) {
             throw new Error("Você precisa preencher os campos.")
         }

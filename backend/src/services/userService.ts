@@ -1,3 +1,4 @@
+import { Plan } from "../generated/prisma"
 import { prisma } from "../lib/prisma"
 import type { userData } from "../utils/userTypes"
 import bcrypt from "bcrypt"
@@ -133,6 +134,60 @@ class UserService {
             data: { password: newHashedPassword }
         })
     }
+
+    async changePlan(userId: string, newPlan: Plan) {
+        const userExists = await prisma.user.findUnique({ where: { id: userId } })
+        if (!userExists) {
+            throw new Error("Usuário não encontrado.")
+        }
+
+        if (userExists.plan === newPlan) {
+            throw new Error(`Você já está no plano ${newPlan}.`)
+        }
+        
+        const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: { plan: newPlan },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                bio: true,
+                avatarUrl: true,
+
+                links: true,
+                appearance: true,
+                plan: true
+            }
+        })
+
+        return updatedUser
+    }
+
+    async changeAvatar(userId: string, avatarUrl: string) {
+        const userExists = await prisma.user.findUnique({ where: { id: userId } })
+        if (!userExists) {
+            throw new Error("Usuário não encontrado.")
+        }
+
+        const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: { avatarUrl },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                bio: true,
+                avatarUrl: true,
+                links: true,
+                appearance: true,
+                plan: true
+            }
+        })
+
+        return updatedUser
+    }
+
 
     async delete(userId: string) {
         const userExists = await prisma.user.findUnique({ where: { id: userId } })

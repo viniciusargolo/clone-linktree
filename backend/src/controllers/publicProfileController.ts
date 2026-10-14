@@ -6,7 +6,7 @@ class PublicProfileController {
         try {
             const { username } = req.params
 
-            const userProfile =  await publicProfileService.getProfileByUsername(username)
+            const userProfile =  await publicProfileService.getProfileByUsername(String(username))
             return res.status(200).json(userProfile)
         } catch (error) {
             next(error)
