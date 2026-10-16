@@ -9,7 +9,14 @@ class PublicProfileService {
                 links: {
                     orderBy: { createdAt: "asc" }
                 },
-                appearance: true
+                appearance: {
+                    select: {
+                        pageBackground: true,
+                        pageTextColor: true,
+                        buttonBackground: true,
+                        buttonTextColor: true
+                    }
+                }
             }
         })
 
@@ -22,7 +29,12 @@ class PublicProfileService {
             username: user.username,
             bio: user.bio,
             avatar: user.avatarUrl,
-            theme: user.appearance?.theme,
+            appearance: {
+                pageBackground: user.appearance?.pageBackground,
+                pageTextColor: user.appearance?.pageTextColor,
+                buttonBackground: user.appearance?.buttonBackground,
+                buttonTextColor: user.appearance?.buttonTextColor,
+            },            
             links: user.links.map(link => ({
                 linkId: link.id,
                 title: link.title,

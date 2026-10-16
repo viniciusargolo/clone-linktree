@@ -2,7 +2,7 @@
 
 // 1. Importe o hook 'useParams' do next/navigation
 import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import {  useEffect, useState } from 'react';
 import Image from 'next/image';
 import { IconAlertCircle, IconLoader3 } from '@tabler/icons-react';
 import Link from 'next/link';
@@ -13,21 +13,21 @@ interface Link {
   url: string;
 }
 
+interface Appearance {
+  pageBackground: string
+  pageTextColor: string
+  buttonBackground: string
+  buttonTextColor: string
+}
+
 interface PublicProfile {
   name: string;
   username: string;
   bio?: string;
   avatar?: string;
   links: Link[];
-  theme?: string;
+  appearance: Appearance;
 }
-
-const linkThemes: Record<string, string> = {
-  blue: 'bg-blue-300 border-blue-500 hover:bg-blue-200',
-  pink: 'bg-pink-300 border-pink-500 hover:bg-pink-200',
-  green: 'bg-green-300 border-green-500 hover:bg-green-200',
-}
-
 
 export default function PublicProfilePage() {
   
@@ -40,9 +40,10 @@ export default function PublicProfilePage() {
   
   const username = Array.isArray(params.username) ? params.username[0] : params.username;
 
-  useEffect(() => {
-    if (!username) return;
+  if (!username) return;
 
+    
+  useEffect(() => {
     const fetchPublicProfile = async () => {
       try {
         const response = await fetch(`http://localhost:3333/${username}`, {
@@ -62,20 +63,25 @@ export default function PublicProfilePage() {
         const data = await response.json();
         setProfile(data);
 
+
       } catch (err) {
         if(err instanceof Error) {
           setError(err.message);
+          console.error(error)
         }
       } finally {
         setIsLoading(false);
       }
-    };
-
+    }
     fetchPublicProfile();
-    
-  }, [username]);
+  }, [setError, setProfile, setIsLoading]);
 
-  
+  useEffect(() => {
+    if (profile) {
+      document.title = `Perfil de ${profile.username}`;
+    }
+  }, [profile]);
+
 
   if (isLoading) {
     return (
@@ -111,37 +117,41 @@ export default function PublicProfilePage() {
   }
 
   return (
-    <div className='max-w-5xl mx-auto min-h-[100vh_-_40px] mt-10'>
-      <div className='flex w-full justify-center'>
-        <Image className='rounded-full object-cover' src={profile.avatar || '/user.jpg'} width={200} height={200} alt={`Avatar de ${profile.name}`} />
-      </div>
-      <div className='flex items-center gap-2 justify-between w-full'>
-        <h1 className='text-xl font-medium'>{profile.name}</h1>
-        <p className='text-sm text-zinc-600'>#{profile.username}</p>
-      </div>
-      <div className='flex flex-col items-start bg-zinc-950/10 w-full px-4 py-2 my-2 border-b-1 border-zinc-800'>
-        <p className='font-medium'>Bio:</p>
-        <p className='text-sm font-normal text-zinc-600'>{profile.bio}</p>
-      </div>
+    <div style={{ backgroundColor: profile.appearance.pageBackground }} className={`min-w-full p-10 min-h-screen`}>
+      <div className='max-w-2xl min-h-screen mx-auto bg-white rounded-2xl'>
+        <div className='flex w-full justify-center p-5'>
+          <Image className='rounded-full object-cover' src={profile.avatar || '/user.jpg'} width={150} height={150} alt={`Avatar de ${profile.name}`} />
+          <div className='flex flex-col items-start justify-center w-full px-5'>
+            <div className='flex items-centes gap-2 justify-between w-full'>
+              <h1 className='text-xl font-medium'>{profile.name}</h1>
+              <p className='text-sm'>#{profile.username}</p>
+            </div>
+            <div className='flex items-start w-full min-w-full'>
+              {/* <p className='font-xs'>Bio</p> */}
+              <p className='text-xs font-normal'>{profile.bio}</p>
+            </div>
+          </div>
+        </div>
+        
         <div>
-        {profile.links && profile.links.length > 0 ? (
-          <>
-            <h2 className='text-2xl text-center py-5'>Links</h2>
-            <ul className='flex flex-col gap-5'>
-              {profile.links.map((link) => (
-                <li key={link.linkId}>
-                 <Link href={link.url} rel="noopener noreferrer" target="_blank" className={`block ${linkThemes[profile.theme ?? ''] ?? linkThemes.pink} border-b-1 p-3 transition-all duration-300 transform hover:translate-x-1 text-center text-xl font-medium text-zinc-950`}>{link.title}</Link>
-                {/* <LinkNEXT color={theme} url={link.url} title={link.title}/> */}
-                </li>
-              ))}
-            </ul>
-          </>
-        ) : (
-        <h2 className='text-sm text-center py-5 text-zinc-600'>
-          Que vazio! {profile.name} ainda não tem links...
-        </h2>
-      )}
-  </div>
+          {profile.links && profile.links.length > 0 ? (
+            <>
+              <h2 className='text-2xl font-medium text-center py-2'>Links</h2>
+              <ul className='flex flex-col gap-5'>
+                {profile.links.map((link) => (
+                  <li key={link.linkId}>
+                  <Link style={{ backgroundColor: profile.appearance.buttonBackground, color: profile.appearance.buttonTextColor }} href={link.url} rel="noopener noreferrer" target="_blank" className={`block p-3 transition-all duration-300 transform hover:brightness-80 rounded-2xl mx-5 text-center text-xl font-medium`}>{link.title}</Link>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+          <h2 className='text-sm text-center py-5'>
+            Que vazio! {profile.name} ainda não tem links...
+          </h2>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

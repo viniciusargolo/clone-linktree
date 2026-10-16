@@ -38,8 +38,11 @@ model Link {
 }
 
 model Appearance {
-  id    Int    @id @default(autoincrement())
-  theme String @default("default")
+  id               String @id @default(uuid())
+  pageBackground   String @default("#f5efe1") @db.VarChar(7)
+  pageTextColor    String @default("#19191e") @db.VarChar(7)
+  buttonBackground String @default("#f6339a") @db.VarChar(7)
+  buttonTextColor  String @default("#19191e") @db.VarChar(7)
 
   user   User   @relation(fields: [userId], references: [id])
   userId String @unique

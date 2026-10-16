@@ -1,66 +1,53 @@
-import { type User } from "../generated/prisma";
-
 import { prisma } from "../lib/prisma"
-
-interface Theme {
-    id: number;
-    theme: string;
-    user: User;
-    userId: number;
-}
+import { DEFAULT_THEME, type Theme } from "../types/theme";
 
 class AppearanceService {
 
     async getTheme(userId: string) {
-        const userTheme = await prisma.appearance.findUnique({
+        const appearance = await prisma.appearance.findUnique({
             where: { userId },
-            select: {
-                id: true,
-                theme: true,
-                userId: true
-            }
-        })
-        return userTheme
-    }
-
-    async setTheme(setTheme: Theme, userIdFromToken: string) {
-
-        if(!setTheme) {
-            throw new Error("Você precisa escolher um tema.")
-        }
-
-        const limitTheme = await prisma.appearance.count({
-            where: { userId: userIdFromToken }
-        })
-
-        if(limitTheme) {
-            throw new Error("Você não pode criar mais um tema, só alterar.")
-        }
-
-        const definedTheme = await prisma.appearance.create({
-            data: {
-                theme: setTheme.theme,
-                userId: userIdFromToken
+            select: {                
+                pageBackground: true,
+                pageTextColor: true,
+                buttonBackground: true,
+                buttonTextColor: true,
             }
         })
 
-        return definedTheme
+        const theme: Theme = {
+            pageBackground: appearance?.pageTextColor ?? DEFAULT_THEME.pageBackground,
+            pageTextColor: appearance?.pageTextColor ?? DEFAULT_THEME.pageTextColor,
+            buttonBackground: appearance?.buttonBackground ?? DEFAULT_THEME.buttonBackground,
+            buttonTextColor: appearance?.buttonTextColor ?? DEFAULT_THEME.buttonTextColor
+        }
+
+        return { appearance }
     }
 
-    async updateTheme(theme: string, userId: string){
-
-        if(!theme) {
-            throw new Error("Erro. Escolha o tema novamente.")
-        }
+    async updateTheme(theme: Theme, userId: string){
 
         const updatedTheme = await prisma.appearance.upsert({
             where: { userId },
-            update: { theme },
-            create: { theme, userId },
-            select: { id: true, theme: true, userId: true }
+            update: { 
+                pageBackground: theme.pageBackground,
+                pageTextColor: theme.pageTextColor,
+                buttonBackground: theme.buttonBackground,
+                buttonTextColor: theme.buttonTextColor
+             },
+            create: { 
+                pageBackground: theme.pageBackground,
+                pageTextColor: theme.pageTextColor,
+                buttonBackground: theme.buttonBackground,
+                buttonTextColor: theme.buttonTextColor,
+                userId 
+            },
+            select: { 
+                pageBackground: true,
+                pageTextColor: true,
+                buttonBackground: true,
+                buttonTextColor: true,
+            }
         })
-
-        if(!updatedTheme) throw new Error("Não foi possível alterar o tema.")
 
         return updatedTheme
     }

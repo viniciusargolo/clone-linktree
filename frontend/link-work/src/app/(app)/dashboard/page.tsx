@@ -8,14 +8,12 @@ import { useRouter } from "next/navigation";
 import { formatLongDate } from "@/utils/formatDatetime";
 import LinkRow, { LinkData } from "./_components/LinkRow";
 
-
-interface Links {
-  id: string
-  title: string
-  url: string
-  clicks: number
-  createdAt: string
-  updatedAt: string
+interface Appearance {
+    id: string
+    pageBackground: string
+    pageTextColor: string
+    buttonBackground: string
+    buttonTextColor: string
 }
 
 interface UserProfile {
@@ -27,6 +25,7 @@ interface UserProfile {
   avatarUrl?: string
   links?: LinkData[]
   plan?: string
+  appearance: Appearance
 }
 
 export default function Dashboard() {
@@ -46,11 +45,24 @@ export default function Dashboard() {
     const [name, setName] = useState(user?.name)
     const [bio, setBio] = useState(user?.bio)
 
+    const [pageBackground, setPageBackground] = useState("#f5efe1")
+    const [pageTextColor, setPageTextColor] = useState("#19191e")
+    const [buttonBackground, setButtonBackground] = useState("#f6339a")
+    const [buttonTextColor, setButtonTextColor] = useState("#19191e")
+
     const [currentPassword, setCurrentPassword ] = useState("")
     const [newPassword, setNewPassoword] = useState("")
 
-    const [theme, setTheme] = useState<string>("")
-    const [themeSelected, setThemeSelected] = useState<"pink" | "blue" | "green">("pink")
+    useEffect(() => {
+        if (!error && !success) return
+
+        const timer = setTimeout(() => {
+            setError(null)
+            setSuccess(null)
+        }, 5000)
+
+        return () => clearTimeout(timer)
+    }, [error, success])
 
     function handleError(message: string) {
         setError(message)
@@ -67,49 +79,51 @@ export default function Dashboard() {
     }
    
    const fetchUserData = useCallback( async () => {
-            const token = localStorage.getItem("authToken")
+        const token = localStorage.getItem("authToken")
+        
+        if(!token) {
+            setError("Você não está autenticado. Por favor, faça o login.")
+            setIsLoading(false)
+            localStorage.removeItem("userData")
+            localStorage.removeItem("authToken")
+            router.push("/login")
+        }         
+        
+        try {
+            const response = await fetch("http://localhost:3333/manage/profile/me", {
+                method: "GET",
+                cache: 'no-store',
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                }
+            })
             
-            if(!token) {
-                setError("Você não está autenticado. Por favor, faça o login.")
-                setIsLoading(false)
+            if (!response.ok) {
+                const errorData = await response.json();
                 localStorage.removeItem("userData")
                 localStorage.removeItem("authToken")
                 router.push("/login")
-            }         
-            
-            try {
-                const response = await fetch("http://localhost:3333/manage/profile/me", {
-                    method: "GET",
-                    cache: 'no-store',
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`,
-                    }
-                })
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    localStorage.removeItem("userData")
-                    localStorage.removeItem("authToken")
-                    router.push("/login")
-                    throw new Error(errorData.message);
-                }
-                
-                const userData = await response.json()
-                setUser(userData)
-
-            } catch (error) {
-                if (error instanceof Error) {
-                    setError(error.message)
-                }
-            } finally {
-                setIsLoading(false)
+                throw new Error(errorData.message);
             }
-        }, [router, setError, setIsLoading])
+            
+            const userData = await response.json()
+            setUser(userData)
+
+        } catch (error) {
+            if (error instanceof Error) {
+                setError(error.message)
+                console.error(error)
+            }
+        } finally {
+            setIsLoading(false)
+        }
+    }, [router, setError, setIsLoading, setUser])
 
         
     useEffect(() => {
         fetchUserData()
+        console.log(user?.appearance.buttonBackground)
     }, [fetchUserData])
     
     function handleLogout() {
@@ -255,14 +269,20 @@ export default function Dashboard() {
                 setIsLoading(false)
                 router.push("/login")
             }
+            
 
-            const response = await fetch("http://localhost:3333/manage/appearance/1", {
+            const response = await fetch(`http://localhost:3333/manage/appearance/${user?.appearance.id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
-                body: JSON.stringify({ theme: themeSelected })
+                body: JSON.stringify({ 
+                    pageBackground,
+                    pageTextColor,
+                    buttonBackground,
+                    buttonTextColor
+                 })
             })
 
             if(!response.ok) {
@@ -270,9 +290,7 @@ export default function Dashboard() {
             }
 
             const data = await response.json()
-            setTheme(data.updatedAppearance.theme)
             setSuccess(data.message)
-            window.location.reload()
             
         } catch (error) {
             if(error instanceof Error){
@@ -284,7 +302,7 @@ export default function Dashboard() {
         }
     }
 
-    
+   
     // async function deleteLink(e: React.FormEvent){
 
     // }
@@ -300,17 +318,18 @@ export default function Dashboard() {
     }
 
     if (!user) {
-        return <div className="flex items-center justify-center min-h-screen">Não foi possível carregar os dados do perfil.</div>
+        return <div className="flex items-center justify-center min-h-screen">{error}</div>
     }
 
     return (
         <div className="min-h-screen px-10">
-            <header className="max-w-7xl mx-auto flex gap-10 items-center justify-between py-10 my-5">
+            <header className="max-w-7xl mx-auto flex gap-10 items-center justify-between py-10">
                 <div className="flex flex-col">
                     <Link href={"/dashboard"} className="text-5xl p-2 text-transparent font-medium bg-gradient-to-r from-pink-600 from-0% to-pink-300 to-90% bg-clip-text">anchor<i>fy</i></Link>
                     <p className="text-md text-zinc-400">Gerencie a sua conta com o dashboard</p>
                 </div>
                 <div className="flex items-center gap-4">
+                    <a href={`http://localhost:3000/${user.username}`} target="_blank" className="text-transparent font-medium bg-gradient-to-r from-blue-600 from-0% to-blue-300 to-90% bg-clip-text">Ver página</a>
                     <span className="font-medium text-xs">{user.name}</span>
                     <div className="w-12.5 h-12.5 relative">
                         <Image className='rounded-full object-conver' title={user.avatarUrl ? `Foto de ${user.name}` : "Usuário sem foto"} src={user.avatarUrl ? user.avatarUrl : '/user.jpg'} width={50} height={50} alt={`Avatar de ${user.name}`} />
@@ -319,6 +338,18 @@ export default function Dashboard() {
                     <button className="bg-pink-400 px-3 py-1 cursor-pointer hover:bg-pink-500 font-medium" onClick={handleLogout}>Sair</button>
                 </div>
             </header>
+            <div className={`my-2 max-w-7xl mx-auto absolute right-10 bottom-8`}>
+                {success && (<div className="flex items-center gap-2 justify-start bg-green-700/10 border-b-1 border-green-700 p-3 w-full">
+                    <IconCheck size={22} stroke={2} className="text-green-700"/>
+                    <p className="text-green-700 text-md font-medium">{success}</p>
+                </div>)
+                }
+                {error && (<div className="flex items-center gap-2 justify-start bg-red-700/10 border-b-1 border-red-700 p-3 w-full">
+                    <IconAlertCircle size={22} stroke={2} className="text-red-700"/>
+                    <p className="text-red-700 text-md font-medium">{error}</p>
+                </div>)
+                }
+            </div>
             <div className="grid grid-cols-[250px_1fr] max-w-7xl mx-auto">
                 <div>
                     <nav className="flex flex-col">
@@ -409,22 +440,9 @@ export default function Dashboard() {
                         </div>
                         <div className="min-w-full">
                         <form onSubmit={handleUpdateProfile} className="flex flex-col min-w-full gap-5">
-                            <>
-                            {success && (<div className="flex items-center gap-2 justify-start bg-green-700/10 border-b-1 border-green-700 p-3 w-full">
-                                <IconCheck size={22} stroke={2} className="text-green-700"/>
-                                <p className="text-green-700 text-md font-medium">Senha alterada com sucesso.</p>
-                            </div>)
-                            }
-                            {error && (<div className="flex items-center gap-2 justify-start bg-red-700/10 border-b-1 border-red-700 p-3 w-full">
-                                <IconAlertCircle size={22} stroke={2} className="text-red-700"/>
-                                <p className="text-red-700 text-md font-medium">Lembre-se de passar a senha atual corretamente para verificação. Não é permitido salvar campos vazios.</p>
-                            </div>)
-                            }
-                            </>
                             <div className="min-w-full flex flex-col gap-5 mt-10">
                                 <div className="flex flex-col">
                                     <h2 className="text-xl font-medium mb-2">Alterar informações pessoais</h2>
-                                    {/* <span className="bg-black/10 dark:bg-white/10 px-1 py-0.5 text-sm"><strong>Nota:</strong> O novo e-mail deverá ser verificado antes da mudança ocorrer.</span> */}
                                 </div>
                                 <div>
                                     <label htmlFor="name">Nome</label>
@@ -435,13 +453,13 @@ export default function Dashboard() {
                                     <input value={bio} onChange={(e) => setBio(e.target.value)} maxLength={60} name="bio" type="text" className="w-full p-3 bg-black/10 outline-none border-b-1 border-pink-300 focus:border-pink-500 placeholder:text-zinc-500 text-zinc-500" placeholder={`O que você falar sobre você?`} />
                                     <span className="text-xs text-black/50">{user.bio ? `Bio: ${user.bio}` : "Você ainda não definiu nenhuma bio."}</span>
                                 </div>
+                                
                                 <button type="submit" className="bg-pink-400 hover:bg-pink-500 cursor-pointer text-black p-3 ">Salvar</button>
                             </div>
                         </form>
                         <div className="min-w-full flex flex-col gap-5 mt-10">
                             <div className="flex flex-col">
                                 <h2 className="text-xl font-medium mb-2">Alterar e-mail</h2>
-                                {/* <span className="bg-black/10 dark:bg-white/10 px-1 py-0.5 text-sm"><strong>Nota:</strong> O novo e-mail deverá ser verificado antes da mudança ocorrer.</span> */}
                             </div>
                             <div className="w-full">
                                 <label htmlFor="email">E-mail</label>
@@ -477,68 +495,31 @@ export default function Dashboard() {
                             <h2 className="text-xl font-bold">Aparência</h2>
                             <span className="text-xs text-zinc-600">Mude o tema do seu perfil. Deixe do seu jeito...</span>
                         </div>
-                        <>
-                            {success && (<div className="flex items-center gap-2 justify-start bg-green-700/10 border-b-1 border-green-700 p-3 w-full">
-                                <IconCheck size={22} stroke={2} className="text-green-700"/>
-                                <p className="text-green-700 text-md font-medium">Tema alterado com sucesso.</p>
-                            </div>)
-                            }
-                            {error && (<div className="flex items-center gap-2 justify-start bg-red-700/10 border-b-1 border-red-700 p-3 w-full">
-                                <IconAlertCircle size={22} stroke={2} className="text-red-700"/>
-                                <p className="text-red-700 text-md font-medium">Ocorreu um erro ao tentar atualizar o tema.</p>
-                            </div>)
-                            }
-                        </>
-                        <div className="flex gap-5 items-center justify-center w-full">
-                            {/* <div className="flex items-center gap-2">
-                                <IconHourglass size="20" className="text-zinc-600"/>
-                                <p className="text-zinc-600 text-sm">Em breve</p>
-                            </div> */}
-
+                        <div className="flex gap-5 items-center justify-start w-full">
                             <form onSubmit={updateTheme} className="flex flex-col gap-5">
-                                <div className="flex gap-2">
-                                    <input onClick={() => setThemeSelected("blue")} type="radio" id="blue" value="blue" name="theme" />
-                                    <label htmlFor="blue">Azul</label>
+                                <div className="flex flex-col gap-2">
+                                    <label htmlFor="blue">Cor da página {pageBackground}</label>
+                                    <input onChange={e => setPageBackground(e.target.value)} type="color" id="pageBackground" value={pageBackground} name="pageBackground" />
                                 </div>
-                                <div className="flex gap-2">
-                                    <input  onClick={() => setThemeSelected("pink")} type="radio"  value="pink" id="pink" name="theme" />
-                                    <label htmlFor="pink">Rosa</label>
+                                <div className="flex flex-col gap-2">
+                                    <label htmlFor="blue">Cor da Fonte da Página {pageTextColor}</label>
+                                    <input onChange={e => setPageTextColor(e.target.value)} type="color" id="pageTextColor" value={pageTextColor} name="pageTextColor" />
                                 </div>
-                                <div className="flex gap-2">
-                                    <input  onClick={() => setThemeSelected("green")}  type="radio"  value="green" id="green" name="theme" />
-                                    <label htmlFor="green">Verde</label>
+                                <div className="flex flex-col gap-2">
+                                    <label htmlFor="blue">Cor dos Botões {buttonBackground}</label>
+                                    <input onChange={e => setButtonBackground(e.target.value)} type="color" id="buttonBackground" value={buttonBackground} name="buttonBackground" />
                                 </div>
-                                <button type="submit" className="bg-pink-400 hover:bg-pink-500 cursor-pointer text-black p-3 ">Salvar</button>
+                                <div className="flex flex-col gap-2">
+                                    <label htmlFor="blue">Cor da Fonte dos Botões {buttonTextColor}</label>
+                                    <input onChange={e => setButtonTextColor(e.target.value)} type="color" id="buttonTextColor" value={buttonTextColor} name="buttonTextColor" />
+                                </div>
+                                <button type="submit" className="bg-pink-400 hover:bg-pink-500 cursor-pointer text-black p-3">Salvar</button>
                             </form>
-                            <div>
-                            <h2 className="text-xl font-medium py-1">Preview</h2>
-                            {themeSelected === "blue" && (
-                                <Image src="/blue.jpg" width={600} height={100} className="object-contain " alt="Cor azul" />
-                            )}
-                            {themeSelected === "pink" && (
-                                <Image src="/pink.jpg" width={600} height={100} className="object-contain " alt="Cor azul" />
-                            )}
-                            {themeSelected === "green" && (
-                                <Image src="/green.jpg" width={600} height={100} className="object-contain " alt="Cor azul" />
-                            )}
-                            </div>
                         </div>
                     </div>
                 }
                 {section === "links" && 
                 <div className="flex flex-col gap-2 items-start w-full">
-                            <>
-                            {success && (<div className="flex items-center gap-2 justify-start bg-green-700/10 border-b-1 border-green-700 p-3 w-full">
-                                <IconCheck size={22} stroke={2} className="text-green-700"/>
-                                <p className="text-green-700 text-md font-medium">Link criado com sucesso.</p>
-                            </div>)
-                            }
-                            {error && (<div className="flex items-center gap-2 justify-start bg-red-700/10 border-b-1 border-red-700 p-3 w-full">
-                                <IconAlertCircle size={22} stroke={2} className="text-red-700"/>
-                                <p className="text-red-700 text-md font-medium">Os campos título e url são obrigatórios.</p>
-                            </div>)
-                            }
-                            </>
                     <div className="flex justify-between min-w-full">
                         <div>
                             <h2 className="text-xl font-bold">Links</h2>

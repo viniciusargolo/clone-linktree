@@ -10,5 +10,3 @@ const prisma = new PrismaClient({
 });
 
 export { prisma };
-
-// 3303587d-aa35-43a5-8df1-95b34b0ec911 lula

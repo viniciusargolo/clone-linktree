@@ -54,8 +54,8 @@ class AuthService {
         const userRegistered = await prisma.user.findFirst({ 
             where: {
                 OR: [
-                    { email: { contains: emailOrUsername }},
-                    { username: { contains: emailOrUsername }}
+                    { email: emailOrUsername },
+                    { username: emailOrUsername }
                 ]
             } 
     })

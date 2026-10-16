@@ -8,7 +8,7 @@ class UserController {
         try {
             const userId = String(req.user?.userId)
             if (!userId) {
-                throw new Error("Usuário não autenticado.")
+                res.status(401).json({ message: "Usuário não autenticado." })
             }
             const user = await UserService.getProfile(userId)
             return res.status(200).json(user)
@@ -31,7 +31,7 @@ class UserController {
             const userIdFromToken  = String(req.user?.userId)
 
             if(!userIdFromToken) {
-                throw new Error("Usuário não autenticado.")
+                res.status(401).json({ message: "Usuário não autenticado." })
             }
 
             const { name, bio, avatarUrl } = req.body
@@ -51,7 +51,7 @@ class UserController {
             const userIdFromToken = String(req.user?.userId)
 
             if(!userIdFromToken) {
-                throw new Error("Usuário não autenticado.")
+                res.status(401).json({ message: "Usuário não autenticado." })
             }
 
             const { currentPassword, newPassword } = req.body
@@ -69,7 +69,7 @@ class UserController {
         try {
             const userIdFromToken = String(req.user?.userId)
             if(!userIdFromToken) {
-                throw new Error("Usuário não autenticado.")
+                res.status(401).json({ message: "Usuário não autenticado." })
             }
 
             const { avatarUrl } = req.body
@@ -85,7 +85,7 @@ class UserController {
         try {
             const userIdFromToken = String(req.user?.userId)
             if(!userIdFromToken) {
-                throw new Error("Usuário não autenticado.")
+                res.status(401).json({ message: "Usuário não autenticado." })
             }
             const plan = req.body.plan
             const updatedUser = await userService.update(userIdFromToken, plan)
@@ -102,7 +102,7 @@ class UserController {
             const userIdFromToken = String(req.user?.userId)
 
             if(!userIdFromToken) {
-                throw new Error("Usuário não autenticado.")
+                res.status(401).json({ message: "Usuário não autenticado." })
             }
 
             await UserService.delete(userIdFromToken)

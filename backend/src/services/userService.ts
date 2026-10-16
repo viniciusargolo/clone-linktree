@@ -18,7 +18,15 @@ class UserService {
                 plan: true,
                 createdAt: true,
                 updatedAt: true,
-                appearance: true,
+                appearance: {
+                    select: {
+                        id: true,
+                        pageBackground: true,
+                        pageTextColor: true,
+                        buttonBackground: true,
+                        buttonTextColor: true
+                    }
+                },
                 links:  { 
                     select: {
                         id: true,
@@ -67,7 +75,14 @@ class UserService {
                 avatarUrl,
             },
             include: {
-                appearance: true
+                appearance: {
+                    select: {
+                        pageBackground: true,
+                        pageTextColor: true,
+                        buttonBackground: true,
+                        buttonTextColor: true
+                    }
+                }
             }
         })
 
